@@ -1,19 +1,18 @@
 import fileinput
+import re
 
-pairs = list(fileinput.input())[0].strip().split(',')
-pairs = [tuple(map(int, p.split('-'))) for p in pairs]
+numbers = list(map(int, re.findall(r'\d+', next(fileinput.input()))))
 
-p1 = 0
-p2 = 0
-for a, b in pairs:
+p1 = p2 = 0
+for a, b in zip(numbers[::2], numbers[1::2]):
     for x in range(a, b + 1):
         s = str(x)
-        i = len(s) // 2
+        n = len(s)
+        i = n // 2
         if s[:i] == s[i:]:
             p1 += x
-        for n in range(1, len(s) // 2 + 1):
-            tokens = [s[i:i+n] for i in range(0, len(s), n)]
-            if all(t == tokens[0] for t in tokens):
+        for k in range(1, i + 1):
+            if all(s[:k] == s[j:j+k] for j in range(0, n, k)):
                 p2 += x
                 break
 

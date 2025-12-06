@@ -1,41 +1,20 @@
 import fileinput
 
-ranges = []
+spans = []
 values = []
 for line in fileinput.input():
-    line = line.rstrip()
-    if not line:
-        continue
-    elif '-' in line:
-        a, b = map(int, line.split('-'))
-        ranges.append((a, b))
-    else:
+    if '-' in line:
+        spans.append(list(map(int, line.split('-'))))
+    elif line.strip():
         values.append(int(line))
 
-total = 0
-for value in values:
-    if any(a <= value <= b for a, b in ranges):
-        total += 1
-print(total)
+print(sum(any(a <= x <= b for a, b in spans) for x in values))
 
-points = set()
-for a, b in ranges:
-    points.add(a)
-    points.add(b)
-points = list(sorted(points))
+merged = []
+for a, b in sorted(spans):
+    if merged and a <= merged[-1][1]:
+        merged[-1][1] = max(merged[-1][1], b)
+    else:
+        merged.append([a, b])
 
-total = 0
-seen = set()
-for p, q in zip(points, points[1:]):
-    d = q - p
-    r = p + 1
-    if p not in seen and any(a <= p <= b for a, b in ranges):
-        total += 1
-    seen.add(p)
-    if q not in seen and any(a <= q <= b for a, b in ranges):
-        total += 1
-    seen.add(q)
-    if r not in seen and any(a <= r <= b for a, b in ranges):
-        total += d - 1
-    seen.add(r)
-print(total)
+print(sum(b - a + 1 for a, b in merged))
